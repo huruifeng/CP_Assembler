@@ -53,8 +53,10 @@ class arithmetic():
     def checkErr(self,seq_s,seq_q,errorN=5):
         
         temp_N = Levenshtein.distance(seq_s,seq_q) 
-        if errorN < temp_N:
-            return 0;
+        if temp_N > errorN:
+            return 0  ##failed, Error Num > limited N
+        else:
+            return 1 
     
     def checkError(self,seq_s,seq_q,index=0,errorN=1):
         seq_s_list = list(seq_s[index:])
