@@ -78,15 +78,15 @@ print #####################ContigExtend 1/4###########################
 command = "python ContigExtend.py -b "+Bone_File+" -1 "+file_path_1+" -2 "+file_path_2+" -l "+readLength+" -m "+baitLength+" -e "+extend_length
 os.system(command);
 
-print #####################ContigExtend 2/4###########################
+print #####################ContigTrim 2/4###########################
 command = "python ContigTrim.py"
 os.system(command);
 
-print #####################ContigExtend 3/4###########################
+print #####################ContigAssembly 3/4###########################
 command = "python ContigAssemble.py"
 os.system(command);
 
-print #####################ContigExtend 4/4###########################
+print #####################CircleCheck 4/4###########################
 command = "python CircleCheck.py"
 os.system(command);
 

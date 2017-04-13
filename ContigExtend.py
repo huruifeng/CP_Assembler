@@ -294,7 +294,7 @@ for id_i in fq_reads_2nd:
 
 i = 0L
 
-fp_contig_result = open("contig_extend.fa",'w')
+fp_contig_result = open("contig_extend.fasta",'w')
 for read_i in BoneReads:
     if BoneReads[read_i] == 0:
         continue
