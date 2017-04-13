@@ -16,6 +16,8 @@ def printUsage():
 
 baitLength = 100 #min overlap length
 readLength = 150
+extend_length = 5
+
 
 Bone_File = "scaffolds_top5.fa"
 file_path_1 = "SR_filtered_1.fa"
@@ -25,6 +27,7 @@ file_path_2 = "SR_filtered_2.fa"
 option_dict = {"-b":"The path to input file that is intended to extend.",\
                "-1":"For paired-end reads, one of the source reads file.",\
                "-2":"For paired-end reads, another source reads file corresponding to the -1 option.",\
+               "-e":"Set the Extended Length that you want(default:5, means 5Kbp,0 means as long as it can extend).",\
                "-l":"The length of source reads.",\
                "-m":"The min overlap length between bone_reads and source_reads",\
                "-v":"Print the version of this program.",\
@@ -62,6 +65,8 @@ if len(sys.argv) >= 2:
                 file_path_2 = running_dict[running_i]
             if running_i =="-l":
                 readLength = running_dict[running_i]
+            if running_i =="-e":
+                extend_length = running_dict[running_i]
             if running_i =="-m":
                 baitLength = running_dict[running_i]
                
@@ -70,7 +75,7 @@ else:
     sys.exit(1)
 
 print #####################ContigExtend 1/4###########################
-command = "python ContigExtend.py -b "+Bone_File+" -1 "+file_path_1+" -2 "+file_path_2+" -l "+readLength+" -m "+baitLength
+command = "python ContigExtend.py -b "+Bone_File+" -1 "+file_path_1+" -2 "+file_path_2+" -l "+readLength+" -m "+baitLength+" -e "+extend_length
 os.system(command);
 
 print #####################ContigExtend 2/4###########################

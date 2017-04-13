@@ -79,9 +79,13 @@ def write_fasta(fp,sequence):
 def EXTEND(seq,length):
 
     min_repeat = 50
-    repeat_domain_len = 200
+    repeat_domain_len = 100
     
+    ## cut off the 200bp at the end for the low quality
     seq = seq[:-200]
+    
+    origin_length = len(seq)
+    
     while True:
         subseq = seq[-length:]
         ##index_loc = len(seq)-length
@@ -95,7 +99,7 @@ def EXTEND(seq,length):
                 index += 1
                 continue
             for q_read in ReadsBin[baitseq]:
-                if arith.checkErr(subseq,q_read):
+                if arith.checkErr(subseq,q_read,ErrorN):
                     queryReads.append(q_read)
                     queryIndexs.append(index)
                     #print baitseq,ReadsBin[baitseq],q_read
@@ -127,16 +131,25 @@ def EXTEND(seq,length):
             selectBase = voteCount_sorted[0][0]
             seq += selectBase
             
+            current_len = len(seq)
             if len(seq)%1000 == 0:
-                print "Current Length: "+str(len(seq))
+                print "Current Length: "+str(current_len)
+                        
+            delta_l = current_len - origin_length
             
-            if len(seq)>10000 and arith.checkErr(seq[-100:],seq[0:100]):
+            if extend_length == 0:
+                pass
+            else:
+                if delta_l >= extend_length * 1000:
+                    break
+            
+            if current_len > 100000 and arith.checkErr(seq[-100:],seq[0:100],ErrorN):
                 break
             
             ## Check Repeat
             repeat_str = seq[-min_repeat:]
             repeat_domain = seq[-repeat_domain_len-min_repeat:-min_repeat]
-            if repeat_domain.find(repeat_str) !=-1 and len(seq)>10000:
+            if repeat_domain.find(repeat_str) !=-1 and len(seq)>100000:
                 break
             
             if len(seq)>150000: ##150K
@@ -160,6 +173,9 @@ def printUsage():
 
 baitLength = 100 #min overlap length
 readLength = 150
+extend_length = 5
+
+ErrorN = 2
 
 Bone_File = "scaffolds_top5.fa"
 file_path_1 = "SR_filtered_1.fa"
@@ -170,7 +186,8 @@ option_dict = {"-b":"The path to input file that is intended to extend.",\
                "-1":"For paired-end reads, one of the source reads file.",\
                "-2":"For paired-end reads, another source reads file corresponding to the -1 option.",\
                "-l":"The length of source reads.",\
-               "-m":"The min overlap length between bone_reads and source_reads",\
+               "-m":"The min overlap length between bone_reads and source_reads,default:100 bp",\
+               "-e":"Set the Extended Length that you want(default:5, means 5Kbp,0 means as long as it can extend).",\
                "-v":"Print the version of this program.",\
                "-h":"Print the Usage options of this program."}
 
@@ -206,6 +223,8 @@ if len(sys.argv) >= 2:
                 file_path_2 = running_dict[running_i]
             if running_i =="-l":
                 readLength = int(running_dict[running_i])
+            if running_i =="-e":
+                extend_length = int(running_dict[running_i])
             if running_i =="-m":
                 baitLength = int(running_dict[running_i])
                
@@ -274,7 +293,7 @@ for id_i in fq_reads_2nd:
         BoneReads[read_i] = 1
 
 i = 0L
-max_length = 0
+
 fp_contig_result = open("contig_extend.fa",'w')
 for read_i in BoneReads:
     if BoneReads[read_i] == 0:
@@ -283,9 +302,8 @@ for read_i in BoneReads:
     print "Extending Contig "+str(i)+"..."
     seq3pExtend = EXTEND(read_i,readLength)
     
-    
-    
-    if len(seq3pExtend)>10000 and arith.checkErr(seq3pExtend[-100:],seq3pExtend[0:100]):
+    ## length is longer than 10kbp and first 100bp == last 100bp, means that it is a circle.
+    if len(seq3pExtend)>10000 and arith.checkErr(seq3pExtend[-100:],seq3pExtend[0:100],ErrorN):
         fp_contig_result.write(">Contig_"+str(i)+"_Length:"+str(len(seq3pExtend))+"\n")
         write_fasta(fp_contig_result,seq3pExtend)
         ######################
@@ -293,19 +311,17 @@ for read_i in BoneReads:
         write_fasta(fp_contig_result,REVCOMP(seq3pExtend))
         break
     ###############################################################################################
+    
     seq3pExtend_revcomp = REVCOMP(seq3pExtend)
     seq3p5pExtend = EXTEND(seq3pExtend_revcomp,readLength)
+    
+    print "Current Contig Length: "+ str(len(seq3p5pExtend))
     
     fp_contig_result.write(">Contig_"+str(i)+"_Length:"+str(len(seq3p5pExtend))+"\n")
     write_fasta(fp_contig_result,seq3p5pExtend)
     ###############
     fp_contig_result.write(">Contig_"+str(i)+"_RC_Length:"+str(len(seq3p5pExtend))+"\n")
     write_fasta(fp_contig_result,REVCOMP(seq3p5pExtend))
-    
-    max_length = len(seq3p5pExtend) if len(seq3p5pExtend) > max_length else max_length
-    print "Max Length: "+ str(max_length),"Current Contig Length: "+ str(len(seq3p5pExtend))
-    if len(seq3p5pExtend)>10000 and arith.checkErr(seq3p5pExtend[-100:],seq3p5pExtend[0:100]):
-        break
 
 fp_contig_result.close()
   
