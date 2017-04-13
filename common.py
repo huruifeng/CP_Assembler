@@ -55,6 +55,41 @@ class arithmetic():
         temp_N = Levenshtein.distance(seq_s,seq_q) 
         if errorN < temp_N:
             return 0;
+    
+    def checkError(self,seq_s,seq_q,index=0,errorN=1):
+        seq_s_list = list(seq_s[index:])
+        seq_q_list = list(seq_q)
+        s_l = len(seq_s_list)-1
+        q_l = len(seq_q_list)-1
+        error_n = 0
+        q_pos = 0
+        s_pos = 0
+        while s_pos < s_l and q_pos < q_l:
+            if error_n > errorN:
+                break
+            if seq_s_list[s_pos] != seq_q_list[q_pos]:
+                error_n += 1
+                if seq_s_list[s_pos+1] == seq_q_list[q_pos+1]:
+                    ## mismatch
+                    s_pos += 1
+                    q_pos += 1
+                    continue
+    
+                if seq_s_list[s_pos] == seq_q_list[q_pos+1]:
+                    s_pos += 1
+                    q_pos += 2
+                    continue
+                
+                if seq_s_list[s_pos+1] == seq_q_list[q_pos]:
+                    s_pos += 2
+                    q_pos += 1
+                    continue
+                error_n += 1 
+            
+            s_pos += 1
+            q_pos += 1
+            
+        return 0 if error_n > errorN else q_pos
 
     
     
