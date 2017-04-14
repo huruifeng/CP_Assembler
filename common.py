@@ -1,4 +1,5 @@
 import Levenshtein 
+import __main__
 class arithmetic():  
       
     def __init__(self):  
@@ -50,7 +51,7 @@ class arithmetic():
                           matrix[(j-1)*len_str1+(i-1)] + cost)
         return matrix[-1]
     
-    def checkErr(self,seq_s,seq_q,errorN=5):
+    def checkErr(self,seq_s,seq_q,errorN=1):
         
         temp_N = Levenshtein.distance(seq_s,seq_q) 
         if temp_N > errorN:
@@ -58,8 +59,8 @@ class arithmetic():
         else:
             return 1 
     
-    def checkError(self,seq_s,seq_q,index=0,errorN=1):
-        seq_s_list = list(seq_s[index:])
+    def checkError(self,seq_s,seq_q,errorN=1):
+        seq_s_list = list(seq_s)
         seq_q_list = list(seq_q)
         s_l = len(seq_s_list)-1
         q_l = len(seq_q_list)-1
@@ -86,12 +87,10 @@ class arithmetic():
                     s_pos += 2
                     q_pos += 1
                     continue
-                error_n += 1 
             
             s_pos += 1
             q_pos += 1
             
         return 0 if error_n > errorN else q_pos
-
-    
+ 
     

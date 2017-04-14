@@ -82,7 +82,7 @@ def EXTEND(seq,length):
     repeat_domain_len = 100
     
     ## cut off the 200bp at the end for the low quality
-    seq = seq[:-200]
+    seq = seq[:-100]
     
     origin_length = len(seq)
     
@@ -99,7 +99,8 @@ def EXTEND(seq,length):
                 index += 1
                 continue
             for q_read in ReadsBin[baitseq]:
-                if arith.checkErr(subseq,q_read,ErrorN):
+                res_chk = arith.checkErr(subseq[index:],q_read[:-index],ErrorN)
+                if res_chk:
                     queryReads.append(q_read)
                     queryIndexs.append(index)
                     #print baitseq,ReadsBin[baitseq],q_read
@@ -111,6 +112,8 @@ def EXTEND(seq,length):
 
         voteCount={"A":0,"T":0,"G":0,"C":0}
         if len(queryReads)==0:
+            print "No reads for extending!"
+            seq = seq[:-300]
             break
         else:
             for i in range(len(queryReads)):
@@ -141,18 +144,23 @@ def EXTEND(seq,length):
                 pass
             else:
                 if delta_l >= extend_length * 1000:
+                    print "Entended "+str(delta_l)+" bp"
+                    seq = seq[:-300]
                     break
             
             if current_len > 100000 and arith.checkErr(seq[-100:],seq[0:100],ErrorN):
+                print "Circle Complete!"
                 break
             
             ## Check Repeat
             repeat_str = seq[-min_repeat:]
             repeat_domain = seq[-repeat_domain_len-min_repeat:-min_repeat]
             if repeat_domain.find(repeat_str) !=-1 and len(seq)>100000:
+                print "Repeat Domain"
                 break
             
             if len(seq)>150000: ##150K
+                print "longer than 150K!"
                 break
 
     return seq
@@ -160,7 +168,7 @@ def EXTEND(seq,length):
 
 def printUsage():
     print "Usage:"
-    print "    python ContigExtend.py -b bone_file -1 source_file_1 -2 source_file_2 -l readLength -m minOverlaplength\n"
+    print "    python ContigExtend.py -b bone_file -1 source_file_1 -2 source_file_2 -l readLength -m minOverlaplength -e extendLength\n"
     print "Note:"
     print "The bone_file could be the result file of Assembly programs with long assembled plastid reads,"\
           "or, the initial reads file that is intended to assembly."
@@ -172,14 +180,14 @@ def printUsage():
 ## init
 
 baitLength = 100 #min overlap length
-readLength = 150
+readLength = 300
 extend_length = 5
 
-ErrorN = 2
+ErrorN = 1
 
-Bone_File = "scaffolds_top5.fa"
-file_path_1 = "SR_filtered_1.fa"
-file_path_2 = "SR_filtered_2.fa"
+Bone_File = "top3.fasta"
+file_path_1 = "302_R1_select.fastq"
+file_path_2 = "302_R2_select.fastq"
 
 
 option_dict = {"-b":"The path to input file that is intended to extend.",\
@@ -230,7 +238,7 @@ if len(sys.argv) >= 2:
                
 else:
     printUsage()
-    sys.exit(1)
+    #sys.exit(1)
 
 ##########################################################
 
@@ -304,23 +312,24 @@ for read_i in BoneReads:
     
     ## length is longer than 10kbp and first 100bp == last 100bp, means that it is a circle.
     if len(seq3pExtend)>10000 and arith.checkErr(seq3pExtend[-100:],seq3pExtend[0:100],ErrorN):
-        fp_contig_result.write(">Contig_"+str(i)+"_Length:"+str(len(seq3pExtend))+"\n")
+        fp_contig_result.write(">Contig_"+str(i)+"|Length:"+str(len(seq3pExtend))+"\n")
         write_fasta(fp_contig_result,seq3pExtend)
         ######################
-        fp_contig_result.write(">Contig_"+str(i)+"_RC_Length:"+str(len(seq3pExtend))+"\n")
+        fp_contig_result.write(">Contig_"+str(i)+"_RC|Length:"+str(len(seq3pExtend))+"\n")
         write_fasta(fp_contig_result,REVCOMP(seq3pExtend))
         break
     ###############################################################################################
-    
+    print "RC Extending..."
     seq3pExtend_revcomp = REVCOMP(seq3pExtend)
+    #seq3p5pExtend = seq3pExtend_revcomp
     seq3p5pExtend = EXTEND(seq3pExtend_revcomp,readLength)
     
     print "Current Contig Length: "+ str(len(seq3p5pExtend))
     
-    fp_contig_result.write(">Contig_"+str(i)+"_Length:"+str(len(seq3p5pExtend))+"\n")
+    fp_contig_result.write(">Contig_"+str(i)+"|Length:"+str(len(seq3p5pExtend))+"\n")
     write_fasta(fp_contig_result,seq3p5pExtend)
     ###############
-    fp_contig_result.write(">Contig_"+str(i)+"_RC_Length:"+str(len(seq3p5pExtend))+"\n")
+    fp_contig_result.write(">Contig_"+str(i)+"_RC|Length:"+str(len(seq3p5pExtend))+"\n")
     write_fasta(fp_contig_result,REVCOMP(seq3p5pExtend))
 
 fp_contig_result.close()

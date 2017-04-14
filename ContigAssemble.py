@@ -52,46 +52,100 @@ def Contig_Assemble(contig_1,contig_2,miniOverlap = 100):
     len_1 = len(contig_1)
     len_2 = len(contig_2)
     
-    scaffolds = []
-    
+    scaffolds = {}
+
     if len_1 > len_2:
         min_len = len_2
-        seq_s = contig_1 
-        seq_q = contig_2
     else:
         min_len = len_1
-        seq_s = contig_2
-        seq_q = contig_1
-      
+    
+    
+    ############################################################################          
+    seq_s = contig_1 
+    seq_q = contig_2
+    
     index = miniOverlap
     while index < min_len:
-        if index % 100 ==0:
-            print "Searching 1/2... "+str(index/100)+"/"+str(min_len/100)+" ["+str(n)+"/"+str(contig_num*(contig_num-1)/2)+"]"
-        check_res = arith.checkErr(seq_s[-index:],seq_q[0:index])
+        if index % 1000 ==0:
+            print "Searching 1/4... "+str(index/1000)+"/"+str(min_len/1000)+" ["+str(n)+"/"+str(contig_num*(contig_num-1)/2)+"]"
+        check_res = arith.checkError(seq_s[-index:],seq_q[0:index],2)
         if check_res:
-            seq_s += seq_q[index-1:]
-            scaffolds.append(seq_s)
+            #seq_s += seq_q[index-1:]
+            scaffolds[seq_s]=[]
+            scaffolds[seq_s].append(seq_q)
+            scaffolds[seq_s].append(index)
             break
         else:
             index += 1         
     
     if index < min_len:
+        ## assembly is successful!
         return scaffolds
-     
+    
+    ##############################################################################
+    seq_s = contig_2 
+    seq_q = contig_1
+    
+    index = miniOverlap
+    while index < min_len:
+        if index % 1000 ==0:
+            print "Searching 2/4... "+str(index/1000)+"/"+str(min_len/1000)+" ["+str(n)+"/"+str(contig_num*(contig_num-1)/2)+"]"
+        check_res = arith.checkError(seq_s[-index:],seq_q[0:index],2)
+        if check_res:
+            #seq_s += seq_q[index-1:]
+            scaffolds[seq_s]=[]
+            scaffolds[seq_s].append(seq_q)
+            scaffolds[seq_s].append(index)
+            break
+        else:
+            index += 1         
+    
+    if index < min_len:
+        ## assembly is successful!
+        return scaffolds
+    ##############################################################################
+    seq_s = contig_1 
+    seq_q = contig_2
+    
     index = miniOverlap
     seq_q_rev = REVCOMP(seq_q)
     
     while index < min_len:
-        if index % 100 ==0:
-            print "Searching 2/2... "+str(index/100)+"/"+str(min_len/100)+" ["+str(n)+"/"+str(contig_num*(contig_num-1)/2)+"]"
-        check_res = arith.checkErr(seq_s[-index:],seq_q_rev[0:index])
+        if index % 1000 ==0:
+            print "Searching 2/2... "+str(index/1000)+"/"+str(min_len/1000)+" ["+str(n)+"/"+str(contig_num*(contig_num-1)/2)+"]"
+        check_res = arith.checkError(seq_s[-index:],seq_q_rev[0:index],2)
         if check_res:
-            seq_s += seq_q_rev[index-1:]
-            scaffolds.append(seq_s)
+            #seq_s += seq_q[index-1:]
+            scaffolds[seq_s]=[]
+            scaffolds[seq_s].append(seq_q_rev)
+            scaffolds[seq_s].append(index)
             break
         else:
-            index += 1  
+            index += 1
+                    
+    if index < min_len:
+        ## assembly is successful!
+        return scaffolds
+    #######################################################################
+    seq_s = contig_2 
+    seq_q = contig_1
     
+    index = miniOverlap
+    seq_q_rev = REVCOMP(seq_q)
+    
+    while index < min_len:
+        if index % 1000 ==0:
+            print "Searching 2/2... "+str(index/1000)+"/"+str(min_len/1000)+" ["+str(n)+"/"+str(contig_num*(contig_num-1)/2)+"]"
+        check_res = arith.checkError(seq_s[-index:],seq_q_rev[0:index],2)
+        if check_res:
+            #seq_s += seq_q[index-1:]
+            scaffolds[seq_s]=[]
+            scaffolds[seq_s].append(seq_q_rev)
+            scaffolds[seq_s].append(index)
+            break
+        else:
+            index += 1
+            
     return scaffolds
 
 ########################################################################################
@@ -99,11 +153,12 @@ def Contig_Assemble(contig_1,contig_2,miniOverlap = 100):
 fq_reads_2nd.clear()
 read_fasta("contig_trimed.fasta")
 
+read_id = {}
 contigs = []
-scaffold_res = {}
 for id_i in fq_reads_2nd:
     print id_i
     read_i = fq_reads_2nd[id_i]
+    read_id[read_i] = id_i
     contigs.append(read_i)
 
 
@@ -111,6 +166,8 @@ contig_num = len(contigs)
 print "Contig Numbers:",contig_num
 
 n = 0
+Ass_Path = {}
+scaffold_res = ""
 for i in range(contig_num):
     for j in range(i+1,contig_num):
         n += 1
@@ -119,7 +176,23 @@ for i in range(contig_num):
         
         print "Processing Contig_"+str(i+1)+" : Contig_"+str(j+1)+" ["+str(n)+"/"+str(contig_num*(contig_num-1)/2)+"]"
         scaffold_tmp = Contig_Assemble(contigs[i],contigs[j])
-        for scaffold_tmp_i in scaffold_tmp:
+        
+        for contig_i in scaffold_tmp:
+            Ass_Path[contig_i]=scaffold_tmp[contig_i]
+
+    
+
+for contig_i in contigs:
+    if Ass_Path[contig_i] !=[]:
+        next_seq = Ass_Path[contig_i][0]
+        index_seq = Ass_Path[contig_i][1]
+        scaffold_res += contig_i
+        scaffold_res += next_seq[index_seq-1:]
+        
+    scaffold_res[scaffold_i]=scaffold_tmp[scaffold_i]
+            
+            next_seq = scaffold_i
+            Ass_Path.append(object)
             if scaffold_tmp_i not in scaffold_res:
                 scaffold_res[scaffold_tmp_i]=len(scaffold_tmp_i) 
 
@@ -129,7 +202,7 @@ fp_result = open("scaffolds_draft.fasta",'w')
 i = 0
 for scaffold_i in scaffold_sorted:
     i += 1
-    fp_result.write(">Scaffold_"+str(i)+"_Length:"+str(scaffold_i[1])+"\n")
+    fp_result.write(">Scaffold_"+str(i)+"|Length:"+str(scaffold_i[1])+"\n")
     write_fasta(fp_result,scaffold_i[0])
 fp_result.close()
 

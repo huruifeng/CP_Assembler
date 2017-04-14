@@ -3,10 +3,10 @@ import os
 
 def printUsage():
     print "Usage:"
-    print "    python runPipeline.py -b bone_file -1 source_file_1 -2 source_file_2 -l readLength -m minOverlaplength\n"
+    print "    python runPipeline.py -b bone_file -1 source_file_1 -2 source_file_2 -l readLength -m minOverlaplength -e extendLength\n"
     print "Note:"
-    print "The bone_file could be the result file of Assembly programs with long assembled plastid reads,"\
-          "or, the initial reads file that is intended to assembly."
+    print "The bone_file could be the result file of Assembly programs with long assembled plastid reads, "\
+          "or the initial reads file that is intended to assembly."
     print "\nOptions:"
     for option_i in option_dict:
         print '    '+option_i + "    " + option_dict[option_i]
@@ -19,9 +19,9 @@ readLength = 150
 extend_length = 5
 
 
-Bone_File = "scaffolds_top5.fa"
-file_path_1 = "SR_filtered_1.fa"
-file_path_2 = "SR_filtered_2.fa"
+Bone_File = "top3.fasta"
+file_path_1 = "302_R1_select.fastq"
+file_path_2 = "302_R2_select.fastq"
 
 
 option_dict = {"-b":"The path to input file that is intended to extend.",\
