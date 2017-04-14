@@ -99,52 +99,6 @@ def Contig_Assemble(contig_1,contig_2,miniOverlap = 100):
             break
         else:
             index += 1         
-    
-    if index < min_len:
-        ## assembly is successful!
-        return scaffolds
-    ##############################################################################
-    seq_s = contig_1 
-    seq_q = contig_2
-    
-    index = miniOverlap
-    seq_q_rev = REVCOMP(seq_q)
-    
-    while index < min_len:
-        if index % 1000 ==0:
-            print "Searching 2/2... "+str(index/1000)+"/"+str(min_len/1000)+" ["+str(n)+"/"+str(contig_num*(contig_num-1)/2)+"]"
-        check_res = arith.checkError(seq_s[-index:],seq_q_rev[0:index],2)
-        if check_res:
-            #seq_s += seq_q[index-1:]
-            scaffolds[seq_s]=[]
-            scaffolds[seq_s].append(seq_q_rev)
-            scaffolds[seq_s].append(index)
-            break
-        else:
-            index += 1
-                    
-    if index < min_len:
-        ## assembly is successful!
-        return scaffolds
-    #######################################################################
-    seq_s = contig_2 
-    seq_q = contig_1
-    
-    index = miniOverlap
-    seq_q_rev = REVCOMP(seq_q)
-    
-    while index < min_len:
-        if index % 1000 ==0:
-            print "Searching 2/2... "+str(index/1000)+"/"+str(min_len/1000)+" ["+str(n)+"/"+str(contig_num*(contig_num-1)/2)+"]"
-        check_res = arith.checkError(seq_s[-index:],seq_q_rev[0:index],2)
-        if check_res:
-            #seq_s += seq_q[index-1:]
-            scaffolds[seq_s]=[]
-            scaffolds[seq_s].append(seq_q_rev)
-            scaffolds[seq_s].append(index)
-            break
-        else:
-            index += 1
             
     return scaffolds
 
@@ -180,14 +134,33 @@ for i in range(contig_num):
         for contig_i in scaffold_tmp:
             Ass_Path[contig_i]=scaffold_tmp[contig_i]
 
-    
+Path_X = 0
+
+Ass_Map_Name={}
+Ass_Map_Name[Path_X]=[]
+
+Ass_Map={}
+Ass_Map[Path_X]=[]
+for contig_i in Ass_Path:
+    next_seq = Ass_Path[contig_i][0]
+    for Path_i in Ass_Map:
+        if contig_i in Ass_Map[Path_i]:
+            pos_i = Ass_Map[Path_i].index(contig_i)
+            Ass_Map[Path_i].insert(pos_i+1,next_seq)
+        else:
+            Ass_Map[Path_X]=[]
+            Ass_Map[Path_X].append(contig_i)
+            Ass_Map[Path_X].append(next_seq)
+            
+            
 
 for contig_i in contigs:
-    if Ass_Path[contig_i] !=[]:
+    if contig_i in Ass_Path and Ass_Path[contig_i] !=[]:
         next_seq = Ass_Path[contig_i][0]
         index_seq = Ass_Path[contig_i][1]
         scaffold_res += contig_i
         scaffold_res += next_seq[index_seq-1:]
+        Ass_Path[contig_i] !=[]
         
     scaffold_res[scaffold_i]=scaffold_tmp[scaffold_i]
             
