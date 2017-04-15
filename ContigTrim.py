@@ -95,37 +95,3 @@ print "Contig Trim Running End !!!"
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-        
-

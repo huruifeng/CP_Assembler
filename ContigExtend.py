@@ -336,38 +336,6 @@ fp_contig_result.close()
   
 print "Contig Extend Running End !!!"
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     
 
         

@@ -1,5 +1,5 @@
 import Levenshtein 
-import __main__
+
 class arithmetic():  
       
     def __init__(self):  

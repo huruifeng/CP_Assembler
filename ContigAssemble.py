@@ -67,7 +67,7 @@ def Contig_Assemble(contig_1,contig_2,miniOverlap = 100):
     index = miniOverlap
     while index < min_len:
         if index % 1000 ==0:
-            print "Searching 1/4... "+str(index/1000)+"/"+str(min_len/1000)+" ["+str(n)+"/"+str(contig_num*(contig_num-1)/2)+"]"
+            print "Searching 1/2... "+str(index/1000)+"/"+str(min_len/1000)+" ["+str(n)+"/"+str(contig_num*(contig_num-1)/2)+"]"
         check_res = arith.checkError(seq_s[-index:],seq_q[0:index],2)
         if check_res:
             #seq_s += seq_q[index-1:]
@@ -89,7 +89,7 @@ def Contig_Assemble(contig_1,contig_2,miniOverlap = 100):
     index = miniOverlap
     while index < min_len:
         if index % 1000 ==0:
-            print "Searching 2/4... "+str(index/1000)+"/"+str(min_len/1000)+" ["+str(n)+"/"+str(contig_num*(contig_num-1)/2)+"]"
+            print "Searching 2/2... "+str(index/1000)+"/"+str(min_len/1000)+" ["+str(n)+"/"+str(contig_num*(contig_num-1)/2)+"]"
         check_res = arith.checkError(seq_s[-index:],seq_q[0:index],2)
         if check_res:
             #seq_s += seq_q[index-1:]
@@ -134,53 +134,69 @@ for i in range(contig_num):
         for contig_i in scaffold_tmp:
             Ass_Path[contig_i]=scaffold_tmp[contig_i]
 
-Path_X = 0
+##print Ass_Path
 
+Path_X = 0
 Ass_Map_Name={}
 Ass_Map_Name[Path_X]=[]
 
 Ass_Map={}
 Ass_Map[Path_X]=[]
 for contig_i in Ass_Path:
+    flag = 0
     next_seq = Ass_Path[contig_i][0]
     for Path_i in Ass_Map:
         if contig_i in Ass_Map[Path_i]:
+            flag = 1
             pos_i = Ass_Map[Path_i].index(contig_i)
             Ass_Map[Path_i].insert(pos_i+1,next_seq)
-        else:
-            Ass_Map[Path_X]=[]
-            Ass_Map[Path_X].append(contig_i)
-            Ass_Map[Path_X].append(next_seq)
-            
-            
-
-for contig_i in contigs:
-    if contig_i in Ass_Path and Ass_Path[contig_i] !=[]:
-        next_seq = Ass_Path[contig_i][0]
-        index_seq = Ass_Path[contig_i][1]
-        scaffold_res += contig_i
-        scaffold_res += next_seq[index_seq-1:]
-        Ass_Path[contig_i] !=[]
+            Ass_Map_Name[Path_i].insert(pos_i+1,read_id[next_seq])
+        elif next_seq in Ass_Map[Path_i]:
+            flag = 2
+            pos_i = Ass_Map[Path_i].index(next_seq)
+            Ass_Map[Path_i].insert(pos_i,contig_i)
+            Ass_Map_Name[Path_i].insert(pos_i,read_id[contig_i])
+    if flag == 0:
+        Path_X += 1
+        Ass_Map[Path_X]=[]
+        Ass_Map[Path_X].append(contig_i)
+        Ass_Map[Path_X].append(next_seq)
         
-    scaffold_res[scaffold_i]=scaffold_tmp[scaffold_i]
-            
-            next_seq = scaffold_i
-            Ass_Path.append(object)
-            if scaffold_tmp_i not in scaffold_res:
-                scaffold_res[scaffold_tmp_i]=len(scaffold_tmp_i) 
+        Ass_Map_Name[Path_X]=[]
+        Ass_Map_Name[Path_X].append(read_id[contig_i])
+        Ass_Map_Name[Path_X].append(read_id[next_seq])
 
-scaffold_sorted = sorted(scaffold_res.iteritems(), key=lambda d:d[1],reverse = True)
+        
+del Ass_Map[0]
+del Ass_Map_Name[0]
+
+#print Ass_Map
+print Ass_Map_Name
+
+scaffolds =[]
+
+for path_i in Ass_Map:
+    index = 0
+    i = 1
+    s_temp = ""
+    for contig_i in Ass_Map[path_i]:
+        if i == len(Ass_Map[path_i]):
+            break
+        s_temp += contig_i[index:]
+        index = Ass_Path[contig_i][1]
+        i += 1
+    s_temp += contig_i[index:]
+    scaffolds.append(s_temp)
 
 fp_result = open("scaffolds_draft.fasta",'w')
 i = 0
-for scaffold_i in scaffold_sorted:
+for scaffold_i in scaffolds:
     i += 1
-    fp_result.write(">Scaffold_"+str(i)+"|Length:"+str(scaffold_i[1])+"\n")
-    write_fasta(fp_result,scaffold_i[0])
+    fp_result.write(">Scaffold_"+str(i)+"|Length:"+str(len(scaffold_i))+"\n")
+    write_fasta(fp_result,scaffold_i)
 fp_result.close()
 
 print "Contig Assembly Running End !!!"
 
    
-
-        
+      

@@ -18,7 +18,6 @@ baitLength = 100 #min overlap length
 readLength = 150
 extend_length = 5
 
-
 Bone_File = "top3.fasta"
 file_path_1 = "302_R1_select.fastq"
 file_path_2 = "302_R2_select.fastq"
