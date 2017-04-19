@@ -1,2 +1,2 @@
 # CP_Assembler
-A piprline for chloroplast genome assembly
+A pipeline for chloroplast genome assembly
