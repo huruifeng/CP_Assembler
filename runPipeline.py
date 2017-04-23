@@ -74,7 +74,7 @@ else:
     sys.exit(1)
 
 print #####################ContigExtend 1/4###########################
-command = "python ContigExtend.py -b "+Bone_File+" -1 "+file_path_1+" -2 "+file_path_2+" -l "+readLength+" -m "+baitLength+" -e "+extend_length
+command = "python ContigExtend.py -b "+Bone_File+" -1 "+file_path_1+" -2 "+file_path_2+" -l "+str(readLength)+" -m "+str(baitLength)+" -e "+str(extend_length)
 os.system(command);
 
 print #####################ContigTrim 2/4###########################
