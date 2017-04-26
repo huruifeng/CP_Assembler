@@ -62,7 +62,7 @@ def CircleCheck(scaffold):
     while index < cp_len/2:
         if index % 1000 == 0:
             print "Checking..."+str(index)+"/"+str(cp_len/2)+"["+str(i)+"/"+str(scaffold_n)+"]"
-        if arith.checkErr(cp_head[0:index+min_overlap],cp_tail[-index-min_overlap:]):
+        if arith.checkError(cp_head[0:index+min_overlap],cp_tail[-index-min_overlap:]):
             break
         index+=1
         
