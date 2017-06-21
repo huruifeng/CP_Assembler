@@ -1,4 +1,4 @@
-import Levenshtein 
+#import Levenshtein 
 
 class arithmetic():  
       
@@ -52,14 +52,17 @@ class arithmetic():
         return matrix[-1]
     
     def checkErr(self,seq_s,seq_q,errorN=1):
-        
-        temp_N = Levenshtein.distance(seq_s,seq_q) 
+           
+        ##temp_N = Levenshtein.distance(seq_s,seq_q) 
+        temp_N = self.levenshtein(seq_s,seq_q) ## Use the local function, in case the Levenshtein Package is not installed.
         if temp_N > errorN:
             return 0  ##failed, Error Num > limited N
         else:
             return 1 
+
+
     
-    def checkError(self,seq_s,seq_q,errorN=1):
+    def checkError_hrf(self,seq_s,seq_q,errorN=1):
         seq_s_list = list(seq_s)
         seq_q_list = list(seq_q)
         s_l = len(seq_s_list)-1
