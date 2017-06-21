@@ -68,7 +68,7 @@ def Contig_Assemble(contig_1,contig_2,miniOverlap = 100):
     while index < min_len:
         if index % 1000 ==0:
             print "Searching 1/2... "+str(index/1000)+"/"+str(min_len/1000)+" ["+str(n)+"/"+str(contig_num*(contig_num-1)/2)+"]"
-        check_res = arith.checkError(seq_s[-index:],seq_q[0:index],2)
+        check_res = arith.checkError_hrf(seq_s[-index:],seq_q[0:index],2)
         if check_res:
             #seq_s += seq_q[index-1:]
             scaffolds[seq_s]=[]
@@ -90,7 +90,7 @@ def Contig_Assemble(contig_1,contig_2,miniOverlap = 100):
     while index < min_len:
         if index % 1000 ==0:
             print "Searching 2/2... "+str(index/1000)+"/"+str(min_len/1000)+" ["+str(n)+"/"+str(contig_num*(contig_num-1)/2)+"]"
-        check_res = arith.checkError(seq_s[-index:],seq_q[0:index],2)
+        check_res = arith.checkError_hrf(seq_s[-index:],seq_q[0:index],2)
         if check_res:
             #seq_s += seq_q[index-1:]
             scaffolds[seq_s]=[]
